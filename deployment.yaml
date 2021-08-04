@@ -1,6 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: example
   name: example
 spec:
   replicas: 1
@@ -8,32 +10,27 @@ spec:
     matchLabels:
       app: example
   template:
+    metadata:
+      labels:
+        app: example
     spec:
-      initContainers:
-        - name: setperms
-          image: alpinelinux/darkhttpd
-          volumeMounts:
-            - name: data
-              mountPath: /data
-          command:
-            - sh
-            - -c
-            - "chown -R 1000:1000 /data"
-          securityContext:
-            runAsUser: 0
       containers:
-        - name: darkhttpd
-          image: alpinelinux/darkhttpd
+        - image: alpinelinux/darkhttpd
+          name: darkhttpd
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: example-secret
+              mountPath: /etc/my_first_secret
+              subPath: my_first_secret
           containerPorts:
             - name: http
               protocol: TCP
               containerPort: 8080
-          securityContext:
-            runAsUser: 1000
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: example-data-claim
+        - name: example-secret
+          secret:
+            secretName: example-secret
