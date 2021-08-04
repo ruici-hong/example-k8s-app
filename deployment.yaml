@@ -20,6 +20,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: example-secret
+              mountPath: /etc/my_first_secret
+              subPath: my_first_secret
           containerPorts:
             - name: http
               protocol: TCP
@@ -28,3 +31,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: example-data-claim
+        - name: example-secret
+          secret:
+            secretName: example-secret
